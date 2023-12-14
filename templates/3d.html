@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Model</title>
+    <script type="module" src="https://threejs.org/build/three.js"></script>
+    <script src="https://threejs.org/examples/jsm/controls/OrbitControls.js"></script>
+</head>
+<body>
+    <script>
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // Create a simple cube (you'd replace this with your actual 3D model)
+        var geometry = new THREE.BoxGeometry();
+        var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        var cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Set up the camera
+        camera.position.z = 5;
+
+        // Add animation logic (rotate the cube)
+        var animate = function () {
+            requestAnimationFrame(animate);
+
+            // Rotate the cube
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        };
+
+        // Handle window resize
+        window.addEventListener('resize', function () {
+            var newWidth = window.innerWidth;
+            var newHeight = window.innerHeight;
+
+            camera.aspect = newWidth / newHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(newWidth, newHeight);
+        });
+
+        // Start the animation
+        animate();
+        
+        // Example of extruding walls based on edges
+        var wallShape = new THREE.Shape();
+
+        // Assuming you have an array of edge points obtained from OpenCV
+        var edgePoints = [
+            new THREE.Vector2(0, 0),
+            new THREE.Vector2(1, 0),
+            new THREE.Vector2(1, 1),
+            new THREE.Vector2(0, 1),
+        ];
+
+        wallShape.moveTo(edgePoints[0].x, edgePoints[0].y);
+
+        for (var i = 1; i < edgePoints.length; i++) {
+            wallShape.lineTo(edgePoints[i].x, edgePoints[i].y);
+        }
+
+        wallShape.lineTo(edgePoints[0].x, edgePoints[0].y);
+
+        var wallGeometry = new THREE.ExtrudeGeometry(wallShape, { amount: 0.1, bevelEnabled: false });
+        var wallMaterial = new THREE.MeshBasicMaterial({ color: 0x888888, side: THREE.DoubleSide });
+        var wallMesh = new THREE.Mesh(wallGeometry, wallMaterial);
+        scene.add(wallMesh);
+        var controls = new THREE.OrbitControls(camera, renderer.domElement);
+    </script>
+</body>
+</html>
